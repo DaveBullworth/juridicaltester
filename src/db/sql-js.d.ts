@@ -10,7 +10,7 @@ declare module "sql.js" {
 	}
 
 	// Интерфейс объекта базы данных и его методы
-	interface Database {
+	export interface Database {
 		run(sql: string, params?: unknown[]): void; // выполнить запрос без результата (INSERT, UPDATE)
 		exec(sql: string): unknown[]; // выполнить запрос с результатом (SELECT)
 		prepare(sql: string): unknown; // подготовить запрос с плейсхолдерами
@@ -19,8 +19,6 @@ declare module "sql.js" {
 	}
 
 	// Функция инициализации модуля sql.js
-	function initSqlJs(config?: InitSqlJsConfig): Promise<SqlJsStatic>;
-
-	// По умолчанию экспортируем initSqlJs
+	const initSqlJs: (config?: InitSqlJsConfig) => Promise<SqlJsStatic>;
 	export default initSqlJs;
 }

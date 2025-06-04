@@ -1,0 +1,12 @@
+{
+	"topics": [
+		{ "id": 1, "title": "Гражданское право", "order": 1 },
+		{ "id": 2, "title": "Нотариат", "order": 2 }
+	],
+	"modules": [
+		{ "id": 1, "title": "Правовые пояснения", "order": 1, "topicId": 1 },
+		{ "id": 2, "title": "Модуль второй", "order": 2, "topicId": 1 },
+		{ "id": 3, "title": "Модуль третий", "order": 3, "topicId": 1 },
+		{ "id": 4, "title": "Модуль четвертый", "order": 4, "topicId": 1 }
+	]
+}
