@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { ChevronDown, Play } from "lucide-react";
-import { topicsService } from "../db/client";
-import { Module, Topic } from "@/types";
+import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Play } from "lucide-react";
+import { topicsService } from "@/db/client";
+import type { Module, Topic } from "@/types";
 
 type Props = {
 	topic: Topic;
@@ -10,15 +15,15 @@ type Props = {
 };
 
 export function TopicPanel({ topic, checked, onToggleChecked }: Props) {
-	const [expanded, setExpanded] = useState(false);
 	const [modules, setModules] = useState<Module[]>([]);
+	const [loaded, setLoaded] = useState(false);
 
 	const handleExpand = async () => {
-		if (!expanded) {
+		if (!loaded) {
 			const data = await topicsService.getOneWithModules(topic.id);
 			setModules(data.modules);
+			setLoaded(true);
 		}
-		setExpanded(prev => !prev);
 	};
 
 	const handleStartTest = () => {
@@ -26,53 +31,57 @@ export function TopicPanel({ topic, checked, onToggleChecked }: Props) {
 	};
 
 	return (
-		<div className="border rounded mb-2 overflow-hidden">
-			<div
-				className="flex items-center justify-between p-3 cursor-pointer bg-gray-100 hover:bg-gray-200"
-				onClick={handleExpand}
-				onKeyDown={e => {
-					if (e.key === "Enter" || e.key === " ") handleExpand();
-				}}
-				role="button"
-				tabIndex={0}
-			>
-				<div className="flex items-center gap-2">
-					<ChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
-					<span className="font-semibold">{topic.name}</span>
-				</div>
+		<AccordionItem className="!border-b-0" value={String(topic.id)} onClick={handleExpand}>
+			<Card className="w-full">
+				<AccordionTrigger className="flex items-center justify-between px-4 py-0">
+					<span className="text-base font-medium text-left">{topic.title}</span>
 
-				<div className="flex items-center gap-2">
-					<button
-						title="Тест по этой теме"
-						onClick={e => {
-							e.stopPropagation();
-							handleStartTest();
-						}}
-					>
-						<Play className="w-5 h-5 text-blue-500" />
-					</button>
-					<input
-						type="checkbox"
-						checked={checked}
-						onChange={e => {
-							e.stopPropagation();
-							onToggleChecked();
-						}}
-					/>
-				</div>
-			</div>
+					<div className="flex items-center gap-3">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant="ghost"
+									size="icon"
+									onClick={e => {
+										e.stopPropagation();
+										handleStartTest();
+									}}
+								>
+									<Play className="w-4 h-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Тест по теме</p>
+							</TooltipContent>
+						</Tooltip>
 
-			{expanded && (
-				<div className="p-3 bg-white border-t">
-					<ul className="list-disc list-inside text-sm text-gray-800">
-						{modules.map(module => (
-							<li key={module.id}>
-								{module.name} — {module.questionCount} вопросов
-							</li>
-						))}
-					</ul>
-				</div>
-			)}
-		</div>
+						<Checkbox
+							checked={checked}
+							onCheckedChange={() => {
+								// Тут вообще если-что есть value
+								onToggleChecked();
+							}}
+							onClick={e => e.stopPropagation()}
+						/>
+					</div>
+				</AccordionTrigger>
+
+				<AccordionContent>
+					<CardContent className="pb-4 pt-2">
+						{modules.length > 0 ? (
+							<ul className="space-y-1 text-sm text-muted-foreground pl-4 list-disc">
+								{modules.map(module => (
+									<li key={module.id}>
+										{module.title} — {module.questionCount} вопросов
+									</li>
+								))}
+							</ul>
+						) : (
+							<p className="text-sm text-muted-foreground">Нет модулей</p>
+						)}
+					</CardContent>
+				</AccordionContent>
+			</Card>
+		</AccordionItem>
 	);
 }

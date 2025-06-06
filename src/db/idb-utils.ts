@@ -16,6 +16,12 @@ export async function saveDbToIndexedDB(db: Database) {
 
 // загрузить SQLite базу из IndexedDB
 export async function loadDbFromIndexedDB(): Promise<Uint8Array | null> {
-	const idb = await openDB("TesterApp", 1);
+	const idb = await openDB("TesterApp", 1, {
+		upgrade(db) {
+			if (!db.objectStoreNames.contains("sqlite")) {
+				db.createObjectStore("sqlite");
+			}
+		}
+	});
 	return await idb.get("sqlite", "main");
 }
