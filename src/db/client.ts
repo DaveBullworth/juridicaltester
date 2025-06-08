@@ -3,16 +3,48 @@ import { initDb } from "./init";
 import { topics, modules, questions, answers } from "./schema";
 
 // обработчик запросов для сущности "Темы"
-export class topicsService {
+export class TopicsService {
 	// Для получения всех тем на главном меню
 	static async getAll(page = 1, limit = 10) {
 		const db = await initDb();
-		return db
+
+		// Сначала получаем все темы
+		const rawTopics = await db
 			.select()
 			.from(topics)
 			.orderBy(asc(topics.order))
 			.limit(limit)
 			.offset((page - 1) * limit);
+
+		// Для каждой темы считаем общее количество вопросов
+		const topicsWithQuestionCounts = await Promise.all(
+			rawTopics.map(async topic => {
+				// Получаем модули этой темы
+				const rawModules = await db
+					.select({ id: modules.id })
+					.from(modules)
+					.where(eq(modules.topicId, topic.id));
+
+				// Получаем общее число вопросов по всем модулям темы
+				const totalQuestionCount = await Promise.all(
+					rawModules.map(async mod => {
+						const [{ count: moduleQuestionCount }] = await db
+							.select({ count: count() })
+							.from(questions)
+							.where(eq(questions.moduleId, mod.id));
+
+						return moduleQuestionCount;
+					})
+				).then(counts => counts.reduce((sum, c) => sum + c, 0));
+
+				return {
+					...topic,
+					questionCount: totalQuestionCount
+				};
+			})
+		);
+
+		return topicsWithQuestionCounts;
 	}
 
 	// Для получения модулей одной темы при переходе на конкретную тему
