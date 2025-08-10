@@ -1,0 +1,200 @@
+{
+	"questions": [
+		{
+			"id": 70,
+			"text": "Допускается ли размещение в жилых домах промышленных производств:",
+			"order": 1,
+			"moduleId": 7
+		},
+		{
+			"id": 71,
+			"text": "Вправе ли собственник квартиры отчуждать свою долю в праве собственности на общее имущество жилого дома отдельно от права собственности на квартиру:",
+			"order": 2,
+			"moduleId": 7
+		},
+		{
+			"id": 72,
+			"text": "Не могут быть истребованы от добросовестного приобретателя:",
+			"order": 3,
+			"moduleId": 7
+		},
+		{
+			"id": 73,
+			"text": "Если место исполнения обязательства о передаче недвижимого имущества не определено законодательством или договором, не явствует из существа обязательства, исполнение должно быть произведено:",
+			"order": 4,
+			"moduleId": 7
+		},
+		{
+			"id": 74,
+			"text": "Способами  обеспечения исполнения обязательств является:",
+			"order": 5,
+			"moduleId": 7
+		},
+		{
+			"id": 75,
+			"text": "Способами  обеспечения   обязательств  являются:",
+			"order": 6,
+			"moduleId": 7
+		},
+		{
+			"id": 76,
+			"text": "Обязан ли кредитор доказывать причинение ему убытков в случае выдвижения им требования об уплате неустойки:",
+			"order": 7,
+			"moduleId": 7
+		},
+		{ "id": 77, "text": "Ипотека – это:", "order": 8, "moduleId": 7 },
+		{
+			"id": 78,
+			"text": "Залогодателем вещи может быть лицо, имеющее на нее право:",
+			"order": 9,
+			"moduleId": 7
+		},
+		{ "id": 79, "text": "При ипотеке заложенное имущество:", "order": 10, "moduleId": 7 }
+	],
+	"answers": [
+		{
+			"id": 254,
+			"text": "да, но только в случае если это не создает помех для нормального проживания граждан",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 70
+		},
+		{ "id": 255, "text": "нет", "order": 2, "isCorrect": true, "questionId": 70 },
+		{ "id": 256, "text": "да", "order": 3, "isCorrect": false, "questionId": 70 },
+		{
+			"id": 257,
+			"text": "да, но только с письменного согласия всех его жильцов",
+			"order": 4,
+			"isCorrect": false,
+			"questionId": 70
+		},
+		{ "id": 258, "text": "да", "order": 1, "isCorrect": false, "questionId": 71 },
+		{
+			"id": 259,
+			"text": "да, но только другим жильцам",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 71
+		},
+		{ "id": 260, "text": "нет", "order": 3, "isCorrect": true, "questionId": 71 },
+		{ "id": 261, "text": "жилые помещения", "order": 1, "isCorrect": false, "questionId": 72 },
+		{ "id": 262, "text": "деньги", "order": 2, "isCorrect": true, "questionId": 72 },
+		{ "id": 263, "text": "предприятие", "order": 3, "isCorrect": false, "questionId": 72 },
+		{
+			"id": 264,
+			"text": "ценные бумаги на предъявителя",
+			"order": 4,
+			"isCorrect": true,
+			"questionId": 72
+		},
+		{
+			"id": 265,
+			"text": "в месте нахождения имущества",
+			"order": 1,
+			"isCorrect": true,
+			"questionId": 73
+		},
+		{
+			"id": 266,
+			"text": "в месте жительства (нахождения) кредитора",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 73
+		},
+		{
+			"id": 267,
+			"text": "в месте жительства (нахождения) должника",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 73
+		},
+		{ "id": 268, "text": "поручительство", "order": 1, "isCorrect": true, "questionId": 74 },
+		{ "id": 269, "text": "задаток", "order": 2, "isCorrect": true, "questionId": 74 },
+		{
+			"id": 270,
+			"text": "наложение ареста на имущество",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 74
+		},
+		{ "id": 271, "text": "Поручение", "order": 1, "isCorrect": false, "questionId": 75 },
+		{ "id": 272, "text": "Подписка", "order": 2, "isCorrect": false, "questionId": 75 },
+		{ "id": 273, "text": "Неустойка", "order": 3, "isCorrect": true, "questionId": 75 },
+		{ "id": 274, "text": "Поручительство", "order": 4, "isCorrect": true, "questionId": 75 },
+		{
+			"id": 275,
+			"text": "Удержание имущества должника",
+			"order": 5,
+			"isCorrect": true,
+			"questionId": 75
+		},
+		{ "id": 276, "text": "Расписка", "order": 6, "isCorrect": false, "questionId": 75 },
+		{
+			"id": 277,
+			"text": "да, но только в случае если размер требований превышает сумму основного обязательства",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 76
+		},
+		{ "id": 278, "text": "нет", "order": 2, "isCorrect": true, "questionId": 76 },
+		{ "id": 279, "text": "да", "order": 3, "isCorrect": false, "questionId": 76 },
+		{
+			"id": 280,
+			"text": "залог земельных участков, предприятий, зданий, сооружений, квартир и другого недвижимого имущества",
+			"order": 1,
+			"isCorrect": true,
+			"questionId": 77
+		},
+		{
+			"id": 281,
+			"text": "право ограниченного пользования соседним или другим земельным участком",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 77
+		},
+		{
+			"id": 282,
+			"text": "земля сельскохозяйственного назначения",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 77
+		},
+		{ "id": 283, "text": "собственности", "order": 1, "isCorrect": true, "questionId": 78 },
+		{
+			"id": 284,
+			"text": "хозяйственного ведения",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 78
+		},
+		{ "id": 285, "text": "аренды", "order": 3, "isCorrect": false, "questionId": 78 },
+		{
+			"id": 286,
+			"text": "безвоздмезного пользования",
+			"order": 4,
+			"isCorrect": false,
+			"questionId": 78
+		},
+		{
+			"id": 287,
+			"text": "предается залогодержателю",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 79
+		},
+		{
+			"id": 288,
+			"text": "может как остаться у залогодателя, так и быть передано залогодержателю",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 79
+		},
+		{
+			"id": 289,
+			"text": "остается у залогодателя",
+			"order": 3,
+			"isCorrect": true,
+			"questionId": 79
+		}
+	]
+}

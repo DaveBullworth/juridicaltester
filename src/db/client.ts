@@ -1,4 +1,4 @@
-import { eq, inArray, asc, count } from "drizzle-orm";
+import { sql, eq, inArray, asc, count } from "drizzle-orm";
 import { initDb } from "./init";
 import { topics, modules, questions, answers } from "./schema";
 
@@ -88,7 +88,7 @@ export class ModuleService {
 			.select()
 			.from(questions)
 			.where(eq(questions.moduleId, moduleId))
-			.orderBy(asc(questions.order));
+			.orderBy(sql`RANDOM()`); // случайный порядок
 
 		const questionIds = relatedQuestions.map(q => q.id);
 		const relatedAnswers =
@@ -97,7 +97,7 @@ export class ModuleService {
 						.select()
 						.from(answers)
 						.where(inArray(answers.questionId, questionIds))
-						.orderBy(asc(answers.order))
+						.orderBy(sql`RANDOM()`)
 				: [];
 
 		return {
@@ -130,7 +130,7 @@ export class RandomService {
 						.select()
 						.from(answers)
 						.where(inArray(answers.questionId, questionIds))
-						.orderBy(asc(answers.order))
+						.orderBy(sql`RANDOM()`)
 				: [];
 
 		return shuffled.map(q => ({
@@ -166,7 +166,7 @@ export class RandomService {
 						.select()
 						.from(answers)
 						.where(inArray(answers.questionId, questionIds))
-						.orderBy(asc(answers.order))
+						.orderBy(sql`RANDOM()`)
 				: [];
 
 		return shuffled.map(q => ({

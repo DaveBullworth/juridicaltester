@@ -1,0 +1,314 @@
+{
+	"questions": [
+		{
+			"id": 20,
+			"text": "Гражданин по заявлению заинтересованных лиц может быть признан судом безвестно отсутствующим, если по месту жительства нет сведений о месте его пребывания:",
+			"order": 1,
+			"moduleId": 3
+		},
+		{
+			"id": 21,
+			"text": "Имущество гражданина, признанного безвестно отсутствующим:",
+			"order": 2,
+			"moduleId": 3
+		},
+		{
+			"id": 22,
+			"text": "К юридическим лицам, на имущество которых их учредители имеют право собственности или иное вещное право, относятся:",
+			"order": 3,
+			"moduleId": 3
+		},
+		{
+			"id": 23,
+			"text": "К юридическим лицам, в отношении которых их участники имеют обязательственные права, относятся:",
+			"order": 4,
+			"moduleId": 3
+		},
+		{
+			"id": 24,
+			"text": "К юридическим лицам, в отношении которых их учредители (участники) не имеют имущественных прав, относятся:",
+			"order": 5,
+			"moduleId": 3
+		},
+		{ "id": 25, "text": "Коммерческими организациями являются:", "order": 6, "moduleId": 3 },
+		{ "id": 26, "text": "Коммерческими организациями являются:", "order": 7, "moduleId": 3 },
+		{
+			"id": 27,
+			"text": "Могут ли некоммерческие организации осуществлять предпринимательскую деятельность:",
+			"order": 8,
+			"moduleId": 3
+		},
+		{ "id": 28, "text": "Филиалы коммерческой организации:", "order": 9, "moduleId": 3 },
+		{
+			"id": 29,
+			"text": "Руководители представительств (филиалов) юридического лица действуют:",
+			"order": 10,
+			"moduleId": 3
+		},
+		{
+			"id": 30,
+			"text": "По общему правилу учредитель (участник) юридического лица по обязательствам данного юридического лица:",
+			"order": 11,
+			"moduleId": 3
+		},
+		{ "id": 31, "text": "К недвижимым вещам относятся:", "order": 12, "moduleId": 3 },
+		{
+			"id": 32,
+			"text": "К недвижимым вещам согласно Гражданскому кодексу РБ относятся:",
+			"order": 13,
+			"moduleId": 3
+		},
+		{
+			"id": 33,
+			"text": "Государственной регистрации не подлежит следующее право в отношении недвижимого имущества:",
+			"order": 14,
+			"moduleId": 3
+		}
+	],
+	"answers": [
+		{ "id": 81, "text": "в течение одного года", "order": 1, "isCorrect": true, "questionId": 20 },
+		{ "id": 82, "text": "в течение трех лет.", "order": 2, "isCorrect": false, "questionId": 20 },
+		{ "id": 83, "text": "в течение двух лет", "order": 3, "isCorrect": false, "questionId": 20 },
+
+		{
+			"id": 84,
+			"text": "при необходимости постоянного управления им передается на основании решения суда лицу, которое указывается в данном решении",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 21
+		},
+		{
+			"id": 85,
+			"text": "при необходимости постоянного управления им передается близким родственникам данного гражданина",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 21
+		},
+		{
+			"id": 86,
+			"text": "обращается в доход государства",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 21
+		},
+		{
+			"id": 87,
+			"text": "при необходимости постоянного управления им передается на основании решения суда лицу, которое определяется органом опеки и попечительства и действует на основании договора о доверительном управлении, заключаемого с этим органом.",
+			"order": 4,
+			"isCorrect": true,
+			"questionId": 21
+		},
+
+		{
+			"id": 88,
+			"text": "общество с ограниченной ответственностью",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 22
+		},
+		{
+			"id": 89,
+			"text": "производственный кооператив",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 22
+		},
+		{
+			"id": 90,
+			"text": "коммандитное товарищество",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 22
+		},
+		{ "id": 91, "text": "унитарное предприятие", "order": 4, "isCorrect": true, "questionId": 22 },
+
+		{
+			"id": 92,
+			"text": "производственный кооператив",
+			"order": 1,
+			"isCorrect": true,
+			"questionId": 23
+		},
+		{
+			"id": 93,
+			"text": "открытое акционерное общество",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 23
+		},
+		{ "id": 94, "text": "унитарное предприятие", "order": 3, "isCorrect": false, "questionId": 23 },
+		{ "id": 95, "text": "полное товарищество", "order": 4, "isCorrect": true, "questionId": 23 },
+
+		{
+			"id": 96,
+			"text": "общественное объединение",
+			"order": 1,
+			"isCorrect": true,
+			"questionId": 24
+		},
+		{ "id": 97, "text": "фонд", "order": 2, "isCorrect": true, "questionId": 24 },
+		{
+			"id": 98,
+			"text": "общество с ограниченной ответственностью",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 24
+		},
+		{ "id": 99, "text": "унитарное предприятие", "order": 4, "isCorrect": false, "questionId": 24 },
+
+		{
+			"id": 100,
+			"text": "потребительский кооператив",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 25
+		},
+		{
+			"id": 101,
+			"text": "общество с ограниченной ответственностью",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 25
+		},
+		{ "id": 102, "text": "фонд", "order": 3, "isCorrect": false, "questionId": 25 },
+		{ "id": 103, "text": "унитарное предприятие", "order": 4, "isCorrect": true, "questionId": 25 },
+		{ "id": 104, "text": "ассоциация", "order": 5, "isCorrect": false, "questionId": 25 },
+
+		{
+			"id": 105,
+			"text": "общественное объединение",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 26
+		},
+		{
+			"id": 106,
+			"text": "финансируемое собственником учреждение",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 26
+		},
+		{ "id": 107, "text": "полное товарищество", "order": 3, "isCorrect": true, "questionId": 26 },
+		{
+			"id": 108,
+			"text": "производственный кооператив",
+			"order": 4,
+			"isCorrect": true,
+			"questionId": 26
+		},
+
+		{ "id": 109, "text": "нет", "order": 1, "isCorrect": false, "questionId": 27 },
+		{
+			"id": 110,
+			"text": "да, но только путем образования коммерческих организаций",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 27
+		},
+		{ "id": 111, "text": "да", "order": 3, "isCorrect": false, "questionId": 27 },
+
+		{
+			"id": 112,
+			"text": "являются некоммерческими организациями",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 28
+		},
+		{
+			"id": 113,
+			"text": "являются коммерческими организациями",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 28
+		},
+		{
+			"id": 114,
+			"text": "не являются юридическими лицами",
+			"order": 3,
+			"isCorrect": true,
+			"questionId": 28
+		},
+
+		{
+			"id": 115,
+			"text": "устава этого юридического лица",
+			"order": 1,
+			"isCorrect": false,
+			"questionId": 29
+		},
+		{
+			"id": 116,
+			"text": "на основании доверенности этого юридического лица",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 29
+		},
+		{
+			"id": 117,
+			"text": "положения о представительстве (филиале)",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 29
+		},
+
+		{
+			"id": 118,
+			"text": "не отвечает по обязательствам юридического лица",
+			"order": 1,
+			"isCorrect": true,
+			"questionId": 30
+		},
+		{
+			"id": 119,
+			"text": "несет субсидиарную ответственность",
+			"order": 2,
+			"isCorrect": false,
+			"questionId": 30
+		},
+		{
+			"id": 120,
+			"text": "несет полную ответственность всем своим имуществом",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 30
+		},
+
+		{ "id": 121, "text": "Земельные участки", "order": 1, "isCorrect": true, "questionId": 31 },
+		{ "id": 122, "text": "Ценные бумаги", "order": 2, "isCorrect": false, "questionId": 31 },
+		{ "id": 123, "text": "Деньги", "order": 3, "isCorrect": false, "questionId": 31 },
+		{
+			"id": 124,
+			"text": "Транспортные средства",
+			"order": 4,
+			"isCorrect": false,
+			"questionId": 31
+		},
+
+		{ "id": 125, "text": "земельный участок", "order": 1, "isCorrect": true, "questionId": 32 },
+		{
+			"id": 126,
+			"text": "предприятие в целом, как имущественный комплекс",
+			"order": 2,
+			"isCorrect": true,
+			"questionId": 32
+		},
+		{
+			"id": 127,
+			"text": "железнодорожный состав",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 32
+		},
+
+		{ "id": 128, "text": "право собственности", "order": 1, "isCorrect": false, "questionId": 33 },
+		{ "id": 129, "text": "право наследования", "order": 2, "isCorrect": true, "questionId": 33 },
+		{
+			"id": 130,
+			"text": "право оперативного управления",
+			"order": 3,
+			"isCorrect": false,
+			"questionId": 33
+		},
+		{ "id": 131, "text": "ипотека", "order": 4, "isCorrect": false, "questionId": 33 }
+	]
+}

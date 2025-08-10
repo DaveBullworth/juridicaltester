@@ -27,6 +27,7 @@ function TestPage() {
 	};
 
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+	const [currentIndex, setCurrentIndex] = useState(0);
 
 	const [questions, setQuestions] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -67,6 +68,15 @@ function TestPage() {
 
 		fetchData();
 	}, [mode, moduleId, themeId, themeIds, count]);
+
+	useEffect(() => {
+		if (!carouselApi) return;
+
+		setCurrentIndex(carouselApi.selectedScrollSnap()); // при инициализации
+		carouselApi.on("select", () => {
+			setCurrentIndex(carouselApi.selectedScrollSnap());
+		});
+	}, [carouselApi]);
 
 	// Получить статус вопроса для цвета лампочки
 	function getQuestionStatus(
@@ -194,15 +204,6 @@ function TestPage() {
 													</label>
 												))}
 											</div>
-
-											<div className="w-full flex justify-center">
-												<Button
-													disabled={isConfirmed || selectedAnswers.length === 0}
-													onClick={() => handleConfirmAnswer(question.id)}
-												>
-													Подтвердить ответ
-												</Button>
-											</div>
 										</div>
 									</CarouselItem>
 								);
@@ -211,6 +212,19 @@ function TestPage() {
 						<CarouselPrevious />
 						<CarouselNext />
 					</Carousel>
+					{/* Кнопка Подтвердить ответ — под каруселью */}
+					<div className="w-full flex justify-center mt-4">
+						<Button
+							className="cursor-pointer"
+							disabled={
+								confirmedAnswers.has(questions[currentIndex]?.id ?? "") ||
+								(userAnswers[questions[currentIndex]?.id ?? ""]?.length ?? 0) === 0
+							}
+							onClick={() => handleConfirmAnswer(questions[currentIndex].id)}
+						>
+							Подтвердить ответ
+						</Button>
+					</div>
 				</>
 			)}
 		</div>
