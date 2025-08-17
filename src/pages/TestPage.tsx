@@ -11,6 +11,13 @@ import {
 	CarouselNext,
 	CarouselItem
 } from "@/components/ui/carousel";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogFooter
+} from "@/components/ui/dialog";
 import { type CarouselApi } from "@/components/ui/carousel";
 import type { Question, Answer } from "@/types";
 
@@ -36,6 +43,8 @@ function TestPage() {
 	const [confirmedAnswers, setConfirmedAnswers] = useState(new Set());
 	// Текущее состояние ответов пользователя
 	const [userAnswers, setUserAnswers] = useState<Record<string | number, (string | number)[]>>({});
+	// состояние модалки выхода
+	const [showExitDialog, setShowExitDialog] = useState(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -93,9 +102,19 @@ function TestPage() {
 
 		if (isCorrect) return "correct";
 
-		// Проверка на частично правильный (выбрали часть правильных, но не все)
-		const hasCorrect = selected.some(ansId => correctAnswers.includes(ansId));
-		if (hasCorrect) return "partial";
+		// === Проверка на "почти правильный" ===
+		// Сколько правильных пропустил
+		const missedCorrect = correctAnswers.filter(id => !selected.includes(id));
+		// Сколько выбрал лишних неправильных
+		const extraWrong = selected.filter(id => !correctAnswers.includes(id));
+
+		// Если ровно одна ошибка (либо 1 пропущен, либо 1 лишний) → partial
+		if (
+			(missedCorrect.length === 1 && extraWrong.length === 0) ||
+			(missedCorrect.length === 0 && extraWrong.length === 1)
+		) {
+			return "partial";
+		}
 
 		return "incorrect";
 	}
@@ -135,7 +154,7 @@ function TestPage() {
 								? "по выбранным темам"
 								: "по всем темам"}
 				</h1>
-				<Button variant="outline" onClick={() => navigate("/")}>
+				<Button variant="outline" onClick={() => setShowExitDialog(true)}>
 					Выйти из теста
 				</Button>
 			</div>
@@ -177,9 +196,6 @@ function TestPage() {
 					<Carousel setApi={setCarouselApi} className="mb-6">
 						<CarouselContent>
 							{questions.map((question: Question) => {
-								const isConfirmed = confirmedAnswers.has(question.id);
-								const selectedAnswers = userAnswers[question.id] || [];
-
 								return (
 									<CarouselItem key={question.id}>
 										<div className="flex flex-col justify-between p-1 h-full">
@@ -187,22 +203,40 @@ function TestPage() {
 												<h2 className="text-lg font-semibold mb-4">
 													Вопрос {questions.indexOf(question) + 1}: {question.text}
 												</h2>
-												{question.answers.map((answer: Answer) => (
-													<label
-														key={answer.id}
-														className={`flex items-center gap-2 cursor-pointer select-none ${
-															isConfirmed ? "opacity-70 cursor-default" : ""
-														}`}
-													>
-														<Checkbox
-															className="cursor-pointer"
-															disabled={isConfirmed}
-															checked={selectedAnswers.includes(answer.id)}
-															onCheckedChange={() => handleToggleAnswer(question.id, answer.id)}
-														/>
-														<span>{answer.text}</span>
-													</label>
-												))}
+												{question.answers.map((answer: Answer) => {
+													const isConfirmed = confirmedAnswers.has(question.id);
+													const selectedAnswers = userAnswers[question.id] || [];
+													const isSelected = selectedAnswers.includes(answer.id);
+
+													// Подсветка после подтверждения
+													let highlightClass = "";
+													let checkboxClass = "";
+													if (isConfirmed) {
+														if (answer.isCorrect) {
+															highlightClass = "text-green-600"; // правильный
+															checkboxClass = "!bg-green-600";
+														}
+														if (isSelected && !answer.isCorrect) {
+															highlightClass = "text-red-600"; // выбранный, но неправильный
+															checkboxClass = "!bg-red-600";
+														}
+													}
+
+													return (
+														<label
+															key={answer.id}
+															className={`flex items-center gap-2 cursor-pointer select-none transition-colors duration-500 ${isConfirmed ? "cursor-default" : ""} ${highlightClass}`}
+														>
+															<Checkbox
+																className={`cursor-pointer transition-colors duration-500 ${checkboxClass}`}
+																disabled={isConfirmed}
+																checked={isSelected}
+																onCheckedChange={() => handleToggleAnswer(question.id, answer.id)}
+															/>
+															<span>{answer.text}</span>
+														</label>
+													);
+												})}
 											</div>
 										</div>
 									</CarouselItem>
@@ -227,6 +261,29 @@ function TestPage() {
 					</div>
 				</>
 			)}
+			{/* Диалог подтверждения выхода */}
+			<Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Выйти из теста?</DialogTitle>
+					</DialogHeader>
+					<p>Ваш прогресс не будет сохранён.</p>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setShowExitDialog(false)}>
+							Отмена
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={() => {
+								setShowExitDialog(false);
+								navigate("/");
+							}}
+						>
+							Выйти
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
