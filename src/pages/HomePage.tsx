@@ -33,6 +33,14 @@ export default function HomePage() {
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [confirmAction, setConfirmAction] = useState<"all" | "selected" | null>(null);
 	const [questionCount, setQuestionCount] = useState<number>(1);
+	const [inputValue, setInputValue] = useState<string>("1");
+
+	const maxQuestions =
+		confirmAction === "all"
+			? topics.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0)
+			: topics
+					.filter(topic => selectedTopics.includes(topic.id))
+					.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0);
 
 	// === MAIN CHECKBOX STATE ===
 	const allSelected = selectedTopics.length === topics.length && topics.length > 0;
@@ -115,6 +123,40 @@ export default function HomePage() {
 		} else {
 			setSelectedTopics([]);
 		}
+	};
+
+	// при вводе руками
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const raw = e.target.value;
+		setInputValue(raw);
+
+		// если пусто — пока просто не трогаем questionCount
+		if (raw === "") return;
+
+		const num = Number(raw);
+
+		if (!isNaN(num)) {
+			// clamp в пределах [1, maxQuestions]
+			const clamped = Math.min(Math.max(num, 1), maxQuestions);
+			setQuestionCount(clamped);
+		}
+	};
+
+	// при уходе фокуса из инпута — "доводим" пустое значение до валидного
+	const handleInputBlur = () => {
+		if (inputValue === "") {
+			setInputValue("1");
+			setQuestionCount(1);
+		} else {
+			setInputValue(String(questionCount));
+		}
+	};
+
+	// при изменении слайдера
+	const handleSliderChange = (values: number[]) => {
+		const val = values[0];
+		setQuestionCount(val);
+		setInputValue(String(val));
 	};
 
 	return (
@@ -230,15 +272,10 @@ export default function HomePage() {
 								type="number"
 								className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
 								min={1}
-								max={
-									confirmAction === "all"
-										? topics.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0)
-										: topics
-												.filter(topic => selectedTopics.includes(topic.id))
-												.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0)
-								}
-								value={questionCount}
-								onChange={e => setQuestionCount(Number(e.target.value))}
+								max={maxQuestions}
+								value={inputValue}
+								onChange={handleInputChange}
+								onBlur={handleInputBlur}
 							/>
 
 							{/* Ползунок (Slider из ShadCN) */}
@@ -246,15 +283,9 @@ export default function HomePage() {
 								<Slider
 									value={[questionCount]}
 									min={1}
-									max={
-										confirmAction === "all"
-											? topics.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0)
-											: topics
-													.filter(topic => selectedTopics.includes(topic.id))
-													.reduce((sum, topic) => sum + (topic.questionCount ?? 0), 0)
-									}
+									max={maxQuestions}
 									step={1}
-									onValueChange={([value]) => setQuestionCount(value)}
+									onValueChange={handleSliderChange}
 								/>
 							</div>
 						</div>

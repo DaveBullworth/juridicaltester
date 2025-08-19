@@ -118,41 +118,38 @@ export function TopicPanel({
 							{modules.length > 0 ? (
 								<ul className="divide-y divide-gray-200 bg-white dark:divide-gray-700 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
 									{modules.map(module => (
-										<li
-											key={module.id}
-											className="flex items-center justify-between px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300
-													 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-150 select-none
-													 active:bg-indigo-100 dark:active:bg-indigo-800"
-											onClick={() => {
-												setConfirmModule(module);
-												setIsConfirmModalOpen(true);
-											}}
-										>
-											{/* Слева порядковый номер + название */}
-											<div className="flex items-center gap-3">
-												<div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-xs select-none">
-													{module.order ?? modules.indexOf(module) + 1}
+										<li key={module.id} className="list-none">
+											<button
+												className="flex w-full items-center justify-between px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-150 select-none active:bg-indigo-100 dark:active:bg-indigo-800 text-left"
+												onClick={() => {
+													setConfirmModule(module);
+													setIsConfirmModalOpen(true);
+												}}
+											>
+												{/* Слева порядковый номер + название */}
+												<div className="flex items-center gap-3">
+													<div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-xs select-none">
+														{module.order ?? modules.indexOf(module) + 1}
+													</div>
+													<span>{module.title}</span>
 												</div>
-												<span>{module.title}</span>
-											</div>
 
-											{/* Справа: кол-во вопросов + разделитель + кнопка play */}
-											<div className="flex items-center gap-3">
-												{/* Кол-во вопросов */}
-												<span className="text-muted-foreground text-xs select-none">
-													{module.questionCount} вопросов
-												</span>
-
-												{/* Кнопка play */}
-												<Tooltip>
-													<TooltipTrigger asChild>
-														<Play className="w-4 h-4" />
-													</TooltipTrigger>
-													<TooltipContent>
-														<p>Тест по модулю</p>
-													</TooltipContent>
-												</Tooltip>
-											</div>
+												{/* Справа */}
+												<div className="flex items-center gap-3">
+													<span className="text-muted-foreground text-xs select-none">
+														{module.questionCount} вопросов
+													</span>
+													{/* Кнопка play */}
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<Play className="w-4 h-4" />
+														</TooltipTrigger>
+														<TooltipContent>
+															<p>Тест по модулю</p>
+														</TooltipContent>
+													</Tooltip>
+												</div>
+											</button>
 										</li>
 									))}
 								</ul>
@@ -219,7 +216,7 @@ export function TopicPanel({
 										min={1}
 										max={topic.questionCount}
 										step={1}
-										onValueChange={([value]) => setQuestionCount(value)}
+										onValueChange={(values: number[]) => setQuestionCount(values[0])}
 									/>
 								</div>
 							</div>

@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RandomService, ModuleService } from "@/db/client";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Carousel,
@@ -25,6 +26,9 @@ function TestPage() {
 	const location = useLocation();
 	const navigate = useNavigate();
 
+	// Тип для ответов пользователя
+	type UserAnswers = Record<Question["id"], Answer["id"][]>;
+
 	const { mode, moduleId, themeId, themeIds, count } = (location.state || {}) as {
 		mode: "module" | "theme" | "themes" | "all";
 		moduleId?: number;
@@ -36,13 +40,13 @@ function TestPage() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 	const [currentIndex, setCurrentIndex] = useState(0);
 
-	const [questions, setQuestions] = useState<any[]>([]);
+	const [questions, setQuestions] = useState<Question[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	// confirmedAnswers: Set questionId для подтверждённых вопросов
 	const [confirmedAnswers, setConfirmedAnswers] = useState(new Set());
 	// Текущее состояние ответов пользователя
-	const [userAnswers, setUserAnswers] = useState<Record<string | number, (string | number)[]>>({});
+	const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
 	// состояние модалки выхода
 	const [showExitDialog, setShowExitDialog] = useState(false);
 
@@ -120,7 +124,7 @@ function TestPage() {
 	}
 
 	// Переключение выбора ответа (если вопрос не подтвержден)
-	function handleToggleAnswer(questionId: string | number, answerId: string | number) {
+	function handleToggleAnswer(questionId: Question["id"], answerId: Answer["id"]) {
 		if (confirmedAnswers.has(questionId)) return;
 
 		setUserAnswers(prev => {
@@ -167,7 +171,7 @@ function TestPage() {
 				<div className="text-red-500">{error}</div>
 			) : (
 				<>
-					{/* Навигация по вопросам с цветными лампочками */}
+					{/* Навигация по вопросам с анимацией лампочек */}
 					<div className="flex flex-wrap gap-2 mb-6">
 						{questions.map((q, idx) => {
 							const status = getQuestionStatus(q);
@@ -180,14 +184,24 @@ function TestPage() {
 											? "bg-red-500"
 											: "bg-gray-300";
 
+							const isConfirmed = confirmedAnswers.has(q.id);
+
 							return (
-								<button
+								<motion.button
 									key={q.id}
-									className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-sm font-bold cursor-pointer ${color}`}
 									onClick={() => carouselApi?.scrollTo(idx)}
+									className={`w-9 h-9 flex items-center justify-center rounded-full text-white text-sm font-bold cursor-pointer ${color}`}
+									whileHover={{ scale: 1.1 }}
+									whileTap={{ scale: 1.05 }}
+									animate={
+										isConfirmed
+											? { y: [0, -8, 0, -4, 0] } // подпрыгивание
+											: {}
+									}
+									transition={isConfirmed ? { duration: 0.6, times: [0, 0.3, 0.6, 0.8, 1] } : {}}
 								>
 									{idx + 1}
-								</button>
+								</motion.button>
 							);
 						})}
 					</div>
@@ -196,9 +210,26 @@ function TestPage() {
 					<Carousel setApi={setCarouselApi} className="mb-6">
 						<CarouselContent>
 							{questions.map((question: Question) => {
+								const status = getQuestionStatus(question);
+
+								let borderClass = "border-gray-300";
+								let bgClass = "bg-white";
+								if (status === "correct") {
+									borderClass = "border-green-500";
+									bgClass = "bg-green-50";
+								} else if (status === "partial") {
+									borderClass = "border-yellow-500";
+									bgClass = "bg-yellow-50";
+								} else if (status === "incorrect") {
+									borderClass = "border-red-500";
+									bgClass = "bg-red-50";
+								}
+
 								return (
 									<CarouselItem key={question.id}>
-										<div className="flex flex-col justify-between p-1 h-full">
+										<div
+											className={`flex flex-col justify-between h-full p-4 rounded-2xl border-2 shadow-md transition-colors duration-500 ${borderClass} ${bgClass}`}
+										>
 											<div className="flex flex-col gap-2">
 												<h2 className="text-lg font-semibold mb-4">
 													Вопрос {questions.indexOf(question) + 1}: {question.text}
