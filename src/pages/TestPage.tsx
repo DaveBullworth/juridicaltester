@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RandomService, ModuleService } from "@/db/client";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import {
 	Carousel,
 	CarouselContent,
@@ -15,12 +16,14 @@ import {
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogFooter
 } from "@/components/ui/dialog";
 import { type CarouselApi } from "@/components/ui/carousel";
 import type { Question, Answer } from "@/types";
+import { Badge } from "@/components/ui/badge";
 
 function TestPage() {
 	const location = useLocation();
@@ -49,6 +52,25 @@ function TestPage() {
 	const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
 	// состояние модалки выхода
 	const [showExitDialog, setShowExitDialog] = useState(false);
+
+	const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
+	const [startTime, setStartTime] = useState(() => Date.now());
+	const [elapsedTime, setElapsedTime] = useState(0);
+
+	const results = useMemo(() => {
+		let correct = 0;
+		let partial = 0;
+		let incorrect = 0;
+
+		for (const q of questions) {
+			const status = getQuestionStatus(q);
+			if (status === "correct") correct++;
+			else if (status === "partial") partial++;
+			else if (status === "incorrect") incorrect++;
+		}
+
+		return { correct, partial, incorrect };
+	}, [questions, confirmedAnswers, userAnswers]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -142,7 +164,19 @@ function TestPage() {
 	// Подтверждение ответа на вопрос
 	function handleConfirmAnswer(questionId: string | number) {
 		if (!userAnswers[questionId] || userAnswers[questionId].length === 0) return;
-		setConfirmedAnswers(prev => new Set(prev).add(questionId));
+
+		setConfirmedAnswers(prev => {
+			const updated = new Set(prev).add(questionId);
+
+			// Проверяем, все ли вопросы подтверждены
+			if (updated.size === questions.length) {
+				const now = Date.now();
+				setElapsedTime(now - startTime);
+				setIsResultDialogOpen(true);
+			}
+
+			return updated;
+		});
 	}
 
 	return (
@@ -310,6 +344,68 @@ function TestPage() {
 								navigate("/");
 							}}
 						>
+							Выйти
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Диалог окончания теста */}
+			<Dialog open={isResultDialogOpen} onOpenChange={setIsResultDialogOpen}>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle className="text-xl font-bold">Тест завершён 🎉</DialogTitle>
+						<DialogDescription>Вы ответили на все вопросы. Вот ваши результаты:</DialogDescription>
+					</DialogHeader>
+
+					<div className="space-y-4 mt-4">
+						<div className="flex justify-between items-center">
+							<span className="font-medium">Правильных:</span>
+							<Badge variant="default" className="text-base px-3 py-1 bg-green-400">
+								{results.correct}
+							</Badge>
+						</div>
+						<div className="flex justify-between items-center">
+							<span className="font-medium">Частично правильных:</span>
+							<Badge variant="default" className="text-base px-3 py-1 bg-yellow-400">
+								{results.partial}
+							</Badge>
+						</div>
+						<div className="flex justify-between items-center">
+							<span className="font-medium">Неправильных:</span>
+							<Badge variant="destructive" className="text-base px-3 py-1">
+								{results.incorrect}
+							</Badge>
+						</div>
+
+						<Separator />
+
+						<DialogDescription className="flex items-center gap-2">
+							Время на тест:
+							<Badge variant="secondary" className="text-base px-2 py-1 font-semibold">
+								{String(Math.floor(elapsedTime / 60)).padStart(2, "0")}:
+								{String(elapsedTime % 60).padStart(2, "0")}
+							</Badge>
+						</DialogDescription>
+					</div>
+
+					<DialogFooter className="flex justify-between mt-6">
+						<Button variant="secondary" onClick={() => setIsResultDialogOpen(false)}>
+							Скрыть
+						</Button>
+						<Button
+							variant="outline"
+							onClick={() => {
+								// перезапуск
+								setUserAnswers({});
+								setConfirmedAnswers(new Set());
+								setStartTime(Date.now());
+								setIsResultDialogOpen(false);
+							}}
+						>
+							Перезапустить
+						</Button>
+						<Button variant="destructive" onClick={() => navigate("/")}>
 							Выйти
 						</Button>
 					</DialogFooter>
