@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState, useMemo, useRef } from "react";
+import { Loader2, Timer, CheckCircle, ArrowBigUpDash } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RandomService, ModuleService } from "@/db/client";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -22,8 +23,10 @@ import {
 	DialogFooter
 } from "@/components/ui/dialog";
 import { type CarouselApi } from "@/components/ui/carousel";
+import { AnimatedProgress } from "@/components/ProgressBar";
+import { AnimatedTimerBadge } from "@/components/AnimatedTimer";
+import { AnimatedBadge } from "@/components/AnimatedResults";
 import type { Question, Answer } from "@/types";
-import { Badge } from "@/components/ui/badge";
 
 function TestPage() {
 	const location = useLocation();
@@ -31,6 +34,9 @@ function TestPage() {
 
 	// Тип для ответов пользователя
 	type UserAnswers = Record<Question["id"], Answer["id"][]>;
+
+	// Тип ID тоста берём прямо из сигнатуры toast()
+	type ToastId = ReturnType<typeof toast>;
 
 	const { mode, moduleId, themeId, themeIds, count } = (location.state || {}) as {
 		mode: "module" | "theme" | "themes" | "all";
@@ -57,6 +63,8 @@ function TestPage() {
 	const [startTime, setStartTime] = useState(() => Date.now());
 	const [elapsedTime, setElapsedTime] = useState(0);
 
+	const toastIdRef = useRef<ToastId | null>(null);
+
 	const results = useMemo(() => {
 		let correct = 0;
 		let partial = 0;
@@ -71,6 +79,34 @@ function TestPage() {
 
 		return { correct, partial, incorrect };
 	}, [questions, confirmedAnswers, userAnswers]);
+
+	const confirmedCount = confirmedAnswers.size;
+	const totalCount = questions.length;
+	const progress = totalCount > 0 ? (confirmedCount / totalCount) * 100 : 0;
+
+	// Вычисляем максимальное количество цифр
+	const maxDigits = Math.max(
+		String(results.correct).length,
+		String(results.partial).length,
+		String(results.incorrect).length
+	);
+
+	// maxDigits — это количество цифр самого большого числа
+	const getBadgeWidth = (maxDigits: number) => {
+		switch (maxDigits) {
+			case 1:
+				return "2.3rem";
+			case 2:
+				return "3rem";
+			case 3:
+				return "5rem";
+			default:
+				return `${2.5 + 1.5 * (maxDigits - 1)}rem`; // на всякий случай для больших чисел
+		}
+	};
+
+	// Создаём style для одинаковой ширины
+	const badgeWidthStyle = { minWidth: getBadgeWidth(maxDigits) };
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -112,6 +148,52 @@ function TestPage() {
 			setCurrentIndex(carouselApi.selectedScrollSnap());
 		});
 	}, [carouselApi]);
+
+	const handleHideResults = () => {
+		setIsResultDialogOpen(false);
+
+		toastIdRef.current = toast.custom(
+			t => (
+				<motion.div
+					className="bg-white dark:bg-neutral-900 rounded-xl shadow-xl"
+					initial={{ boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+					animate={{
+						boxShadow: [
+							"0 4px 12px rgba(0,0,0,0.1)",
+							"0 4px 20px rgba(0,0,0,0.3)",
+							"0 4px 12px rgba(0,0,0,0.1)"
+						]
+					}}
+					transition={{ duration: 2, repeat: Infinity }}
+				>
+					<div className="flex flex-col gap-2 p-4 bg-white dark:bg-neutral-900 shadow-xl rounded-xl border border-gray-200 dark:border-neutral-700">
+						<h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center  gap-2">
+							<CheckCircle className="w-6 h-6 text-green-500" />
+							Тест пройден!
+						</h2>
+						<p className="text-sm text-gray-600 dark:text-gray-300">
+							Вы можете посмотреть результаты
+						</p>
+						<button
+							onClick={() => {
+								setIsResultDialogOpen(true);
+								toast.dismiss(t);
+								toastIdRef.current = null;
+							}}
+							className="flex items-center justify-center gap-2 px-3 py-1.5 mt-1 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-all"
+						>
+							<ArrowBigUpDash className="w-4 h-4" />
+							Результаты
+						</button>
+					</div>
+				</motion.div>
+			),
+			{
+				duration: Infinity,
+				position: "bottom-center"
+			}
+		);
+	};
 
 	// Получить статус вопроса для цвета лампочки
 	function getQuestionStatus(
@@ -218,26 +300,75 @@ function TestPage() {
 											? "bg-red-500"
 											: "bg-gray-300";
 
+							const borderColor =
+								status === "correct"
+									? "border-green-400"
+									: status === "partial"
+										? "border-yellow-400"
+										: status === "incorrect"
+											? "border-red-400"
+											: "border-gray-400";
+
+							const shadowColor =
+								status === "correct"
+									? "rgba(34,197,94,0.3)" // green-500
+									: status === "partial"
+										? "rgba(245,158,11,0.3)" // yellow-500
+										: status === "incorrect"
+											? "rgba(239,68,68,0.3)" // red-500
+											: "white";
+
 							const isConfirmed = confirmedAnswers.has(q.id);
+							const isCurrent = idx === currentIndex;
 
 							return (
-								<motion.button
-									key={q.id}
-									onClick={() => carouselApi?.scrollTo(idx)}
-									className={`w-9 h-9 flex items-center justify-center rounded-full text-white text-sm font-bold cursor-pointer ${color}`}
-									whileHover={{ scale: 1.1 }}
-									whileTap={{ scale: 1.05 }}
-									animate={
-										isConfirmed
-											? { y: [0, -8, 0, -4, 0] } // подпрыгивание
-											: {}
-									}
-									transition={isConfirmed ? { duration: 0.6, times: [0, 0.3, 0.6, 0.8, 1] } : {}}
-								>
-									{idx + 1}
-								</motion.button>
+								<div key={q.id} className="relative">
+									{/* Обводка для текущего вопроса */}
+									{isCurrent &&
+										(!isConfirmed ? (
+											<motion.div
+												className={`absolute -inset-1 rounded-full border-2 ${borderColor} border-t-transparent border-b-transparent`}
+												animate={{ rotate: 360 }}
+												transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+											/>
+										) : (
+											<div
+												className={`absolute -inset-1 rounded-full border-2 ${borderColor} opacity-70`}
+											/>
+										))}
+
+									<motion.button
+										onClick={() => carouselApi?.scrollTo(idx)}
+										className={`w-9 h-9 flex items-center justify-center rounded-full text-white text-sm font-bold cursor-pointer ${color}`}
+										whileHover={{ scale: 1.1 }}
+										whileTap={{ scale: 1.05 }}
+										animate={
+											isConfirmed
+												? { y: [0, -8, 0, -4, 0] } // подпрыгивание
+												: {}
+										}
+										transition={isConfirmed ? { duration: 0.6, times: [0, 0.3, 0.6, 0.8, 1] } : {}}
+										style={{
+											boxShadow: `0 0 8px 3px ${shadowColor}` // свечение
+										}}
+									>
+										{idx + 1}
+									</motion.button>
+								</div>
 							);
 						})}
+					</div>
+
+					{/* Progress количества подвтержденных вопросов */}
+					<div className="flex flex-col gap-2 my-4">
+						<div className="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
+							<span>
+								Подтверждено: {confirmedCount} / {totalCount}
+							</span>
+							<span>{Math.round(progress)}%</span>
+						</div>
+
+						<AnimatedProgress progress={progress} />
 					</div>
 
 					{/* Carousel с вопросами */}
@@ -266,7 +397,10 @@ function TestPage() {
 										>
 											<div className="flex flex-col gap-2">
 												<h2 className="text-lg font-semibold mb-4">
-													Вопрос {questions.indexOf(question) + 1}: {question.text}
+													<span className="underline mr-1">
+														Вопрос {questions.indexOf(question) + 1}
+													</span>
+													:{" " + question.text}
 												</h2>
 												{question.answers.map((answer: Answer) => {
 													const isConfirmed = confirmedAnswers.has(question.id);
@@ -354,43 +488,46 @@ function TestPage() {
 			<Dialog open={isResultDialogOpen} onOpenChange={setIsResultDialogOpen}>
 				<DialogContent className="max-w-md">
 					<DialogHeader>
-						<DialogTitle className="text-xl font-bold">Тест завершён 🎉</DialogTitle>
+						<DialogTitle className="text-xl font-bold">Тест завершён</DialogTitle>
 						<DialogDescription>Вы ответили на все вопросы. Вот ваши результаты:</DialogDescription>
 					</DialogHeader>
 
 					<div className="space-y-4 mt-4">
 						<div className="flex justify-between items-center">
 							<span className="font-medium">Правильных:</span>
-							<Badge variant="default" className="text-base px-3 py-1 bg-green-400">
-								{results.correct}
-							</Badge>
+							<AnimatedBadge
+								value={results.correct}
+								className={"bg-green-400 text-white"}
+								style={badgeWidthStyle}
+							/>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="font-medium">Частично правильных:</span>
-							<Badge variant="default" className="text-base px-3 py-1 bg-yellow-400">
-								{results.partial}
-							</Badge>
+							<AnimatedBadge
+								value={results.partial}
+								className={"bg-yellow-400 text-white"}
+								style={badgeWidthStyle}
+							/>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="font-medium">Неправильных:</span>
-							<Badge variant="destructive" className="text-base px-3 py-1">
-								{results.incorrect}
-							</Badge>
+							<AnimatedBadge
+								value={results.incorrect}
+								className={"bg-red-500 text-white"}
+								style={badgeWidthStyle}
+							/>
 						</div>
 
 						<Separator />
 
 						<DialogDescription className="flex items-center gap-2">
-							Время на тест:
-							<Badge variant="secondary" className="text-base px-2 py-1 font-semibold">
-								{String(Math.floor(elapsedTime / 60)).padStart(2, "0")}:
-								{String(elapsedTime % 60).padStart(2, "0")}
-							</Badge>
+							<Timer className="w-5 h-5 text-gray-600" />:
+							<AnimatedTimerBadge elapsedTime={elapsedTime} />
 						</DialogDescription>
 					</div>
 
 					<DialogFooter className="flex justify-between mt-6">
-						<Button variant="secondary" onClick={() => setIsResultDialogOpen(false)}>
+						<Button variant="secondary" onClick={handleHideResults}>
 							Скрыть
 						</Button>
 						<Button
@@ -401,6 +538,9 @@ function TestPage() {
 								setConfirmedAnswers(new Set());
 								setStartTime(Date.now());
 								setIsResultDialogOpen(false);
+								setCurrentIndex(0);
+								// Вернуть карусель на первый вопрос
+								carouselApi?.scrollTo(0);
 							}}
 						>
 							Перезапустить

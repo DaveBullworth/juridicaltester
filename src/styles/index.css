@@ -138,3 +138,28 @@ body {
 		@apply bg-background text-foreground;
 	}
 }
+
+@keyframes progress-stripes {
+	from {
+		background-position: 0 0;
+	}
+	to {
+		background-position: 40px 0;
+	}
+}
+
+/* Общая анимация для движущихся полосок */
+.progress-indicator {
+	background-image: linear-gradient(
+		135deg,
+		rgba(255, 255, 255, 0.2) 25%,
+		transparent 25%,
+		transparent 50%,
+		rgba(255, 255, 255, 0.2) 50%,
+		rgba(255, 255, 255, 0.2) 75%,
+		transparent 75%,
+		transparent
+	);
+	background-size: 40px 40px;
+	animation: progress-stripes 1s linear infinite;
+}

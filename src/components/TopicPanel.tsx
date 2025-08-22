@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
 	Dialog,
 	DialogContent,
@@ -191,9 +192,23 @@ export function TopicPanel({
 					</DialogHeader>
 					<DialogDescription className="text-sm text-muted-foreground mb-4">
 						Вы действительно хотите начать тест{" "}
-						{confirmModule
-							? `по модулю "${confirmModule.title}" в теме "${topic.title}"?`
-							: `по теме "${topic.title}"?`}
+						{confirmModule ? (
+							<>
+								по модулю <Badge variant="secondary">{confirmModule.title}</Badge> в теме{" "}
+								<Badge variant="secondary" className="text-sm">
+									{topic.title}
+								</Badge>
+								?
+							</>
+						) : (
+							<>
+								по теме{" "}
+								<Badge variant="secondary" className="text-sm">
+									{topic.title}
+								</Badge>
+								?
+							</>
+						)}
 					</DialogDescription>
 					{/* Выбор количества вопросов */}
 					{!confirmModule && (

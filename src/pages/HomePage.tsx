@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Accordion } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -258,7 +259,11 @@ export default function HomePage() {
 								{topics
 									.filter(topic => selectedTopics.includes(topic.id))
 									.map(topic => (
-										<li key={topic.id}>{topic.title}</li>
+										<li key={topic.id}>
+											<Badge variant="secondary" className="text-sm">
+												{topic.title}
+											</Badge>
+										</li>
 									))}
 							</ul>
 						</div>

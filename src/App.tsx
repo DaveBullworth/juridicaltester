@@ -1,7 +1,13 @@
+import { Toaster } from "@/components/ui/sonner";
 import Router from "./components/Router";
 
 function App() {
-	return <Router />;
+	return (
+		<>
+			<Router />
+			<Toaster richColors />
+		</>
+	);
 }
 
 export default App;
