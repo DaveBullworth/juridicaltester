@@ -57,14 +57,14 @@ export function TopicPanel({
 	};
 
 	return (
-		<div className="flex justify-between gap-4 w-full items-start">
+		<div className="flex justify-between gap-2 sm:gap-4 w-full items-start">
 			{/* Левая часть — Accordion */}
 			<AccordionItem className="flex-1 cursor-pointer" value={String(topic.id)}>
 				<Card className="w-full py-0">
-					<div className="flex justify-between  w-full items-center">
+					<div className="flex justify-between w-full items-center">
 						{/* Заголовок */}
 						<AccordionTrigger
-							className="flex items-center justify-between px-4 py-4 text-base font-semibold text-left cursor-pointer"
+							className="flex items-center justify-between px-2 py-2 sm:px-4 sm:py-4 text-base font-semibold text-left cursor-pointer"
 							onClick={e => {
 								e.preventDefault();
 								onRequestOpen();
@@ -72,15 +72,18 @@ export function TopicPanel({
 						>
 							{/* Слева: номер и заголовок */}
 							<div className="flex items-center gap-3">
-								<div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white font-semibold select-none">
+								<div className="flex h-6 sm:h-7 w-6 sm:w-7 text-sm sm:text-base items-center justify-center rounded-full bg-red-500 text-white font-semibold select-none">
 									{topic.order}
 								</div>
-								<h4 className="scroll-m-20 text-xl tracking-tight">{topic.title}</h4>
+								<h4 className="scroll-m-20 text-sm sm:text-xl tracking-tight">{topic.title}</h4>
 							</div>
 
 							{/* Справа: иконка загрузки/стрелки */}
 							<div className="flex items-center gap-2">
-								<p className="text-muted-foreground text-xs">{topic.questionCount} вопросов</p>
+								<p className="text-muted-foreground text-xs hidden sm:block">
+									{topic.questionCount} вопросов
+								</p>
+								<p className="text-muted-foreground text-xs sm:hidden">{topic.questionCount} в.</p>
 								{/* Иконка loader или стрелка */}
 								{loading ? (
 									<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -96,7 +99,7 @@ export function TopicPanel({
 
 						{/* Чекбокс */}
 						<Tooltip>
-							<TooltipTrigger asChild className="flex mr-4">
+							<TooltipTrigger asChild className="flex mr-2 sm:mr-4">
 								<div>
 									<Checkbox
 										checked={checked}
@@ -115,13 +118,13 @@ export function TopicPanel({
 
 					<AccordionContent className="bg-gray-100 rounded-b-[10px]">
 						<Separator />
-						<CardContent className="p-4 cursor-default">
+						<CardContent className="p-2 sm:p-4 cursor-default">
 							{modules.length > 0 ? (
 								<ul className="divide-y divide-gray-200 bg-white dark:divide-gray-700 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
 									{modules.map(module => (
 										<li key={module.id} className="list-none">
 											<button
-												className="flex w-full items-center justify-between px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-150 select-none active:bg-indigo-100 dark:active:bg-indigo-800 text-left"
+												className="flex w-full items-center justify-between px-2 sm:px-4 py-1 sm:py-2 cursor-pointer text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors duration-150 select-none active:bg-indigo-100 dark:active:bg-indigo-800 text-left"
 												onClick={() => {
 													setConfirmModule(module);
 													setIsConfirmModalOpen(true);
@@ -129,7 +132,7 @@ export function TopicPanel({
 											>
 												{/* Слева порядковый номер + название */}
 												<div className="flex items-center gap-3">
-													<div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-xs select-none">
+													<div className="flex h-5 sm:h-6 w-5 sm:w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-xs select-none">
 														{module.order ?? modules.indexOf(module) + 1}
 													</div>
 													<span>{module.title}</span>
@@ -137,8 +140,11 @@ export function TopicPanel({
 
 												{/* Справа */}
 												<div className="flex items-center gap-3">
-													<span className="text-muted-foreground text-xs select-none">
+													<span className="text-muted-foreground text-xs select-none hidden sm:block">
 														{module.questionCount} вопросов
+													</span>
+													<span className="text-muted-foreground text-xs select-none sm:hidden">
+														{module.questionCount} в.
 													</span>
 													{/* Кнопка play */}
 													<Tooltip>
@@ -163,7 +169,7 @@ export function TopicPanel({
 			</AccordionItem>
 
 			{/* Правая панель — внешняя */}
-			<div className="flex flex-row items-center justify-center mt-3">
+			<div className="flex flex-row items-center justify-center mt-0.5 sm:mt-3">
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button

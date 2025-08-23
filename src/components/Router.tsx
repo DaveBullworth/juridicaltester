@@ -4,7 +4,7 @@ import TestPage from "../pages/TestPage";
 
 function Router() {
 	return (
-		<BrowserRouter>
+		<BrowserRouter basename="/juridicaltester/">
 			<Routes>
 				<Route path="/" element={<HomePage />} />
 				<Route path="/test" element={<TestPage />} />

@@ -115,6 +115,7 @@ export class RandomService {
 	// Для получения опроса по определенной теме в нужном кол-ве
 	static async getRandomByTheme(themeId: number, count: number) {
 		const db = await initDb();
+		const topic = await db.select().from(topics).where(eq(topics.id, themeId)).get();
 		const relatedModules = await db.select().from(modules).where(eq(modules.topicId, themeId));
 		const moduleIds = relatedModules.map(m => m.id);
 		const allQuestions =
@@ -133,21 +134,24 @@ export class RandomService {
 						.orderBy(sql`RANDOM()`)
 				: [];
 
-		return shuffled.map(q => ({
-			...q,
-			answers: relatedAnswers.filter(a => a.questionId === q.id)
-		}));
+		return {
+			topic,
+			questions: shuffled.map(q => ({
+				...q,
+				answers: relatedAnswers.filter(a => a.questionId === q.id)
+			}))
+		};
 	}
 
 	// Для получения опроса по определенным темам в нужном кол-ве
 	static async getRandomGlobal(count: number, themeIds?: number[]) {
 		const db = await initDb();
-		const filteredtopics =
+		const filteredTopics =
 			themeIds && themeIds.length > 0
 				? await db.select().from(topics).where(inArray(topics.id, themeIds))
 				: await db.select().from(topics);
 
-		const themeIdsActual = filteredtopics.map(t => t.id);
+		const themeIdsActual = filteredTopics.map(t => t.id);
 		const relatedModules = await db
 			.select()
 			.from(modules)
@@ -169,9 +173,12 @@ export class RandomService {
 						.orderBy(sql`RANDOM()`)
 				: [];
 
-		return shuffled.map(q => ({
-			...q,
-			answers: relatedAnswers.filter(a => a.questionId === q.id)
-		}));
+		return {
+			topics: filteredTopics,
+			questions: shuffled.map(q => ({
+				...q,
+				answers: relatedAnswers.filter(a => a.questionId === q.id)
+			}))
+		};
 	}
 }

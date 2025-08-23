@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { Loader2, Timer, CheckCircle, ArrowBigUpDash } from "lucide-react";
+import { Loader2, CheckCircle, ArrowBigUpDash } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { RandomService, ModuleService } from "@/db/client";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { RandomService, ModuleService } from "@/db/client";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
 	Carousel,
 	CarouselContent,
@@ -24,9 +25,8 @@ import {
 } from "@/components/ui/dialog";
 import { type CarouselApi } from "@/components/ui/carousel";
 import { AnimatedProgress } from "@/components/ProgressBar";
-import { AnimatedTimerBadge } from "@/components/AnimatedTimer";
-import { AnimatedBadge } from "@/components/AnimatedResults";
-import type { Question, Answer } from "@/types";
+import { ResultStats } from "@/components/ResultStats";
+import type { Question, Answer, Topic, Module } from "@/types";
 
 function TestPage() {
 	const location = useLocation();
@@ -50,6 +50,11 @@ function TestPage() {
 	const [currentIndex, setCurrentIndex] = useState(0);
 
 	const [questions, setQuestions] = useState<Question[]>([]);
+	const [testInfo, setTestInfo] = useState<{
+		topic?: Topic;
+		topics?: Topic[];
+		module?: Module;
+	} | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	// confirmedAnswers: Set questionId для подтверждённых вопросов
@@ -62,6 +67,10 @@ function TestPage() {
 	const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
 	const [startTime, setStartTime] = useState(() => Date.now());
 	const [elapsedTime, setElapsedTime] = useState(0);
+	const [autoNext] = useState(() => {
+		const saved = localStorage.getItem("autoNext");
+		return saved === "true"; // если ничего нет, будет false
+	});
 
 	const toastIdRef = useRef<ToastId | null>(null);
 
@@ -109,34 +118,6 @@ function TestPage() {
 	const badgeWidthStyle = { minWidth: getBadgeWidth(maxDigits) };
 
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-
-				if (mode === "module" && moduleId) {
-					const res = await ModuleService.getOneWithQuestionsAndAnswers(moduleId);
-					setQuestions(res.questions);
-				} else if (mode === "theme" && themeId && count) {
-					const res = await RandomService.getRandomByTheme(themeId, count);
-					setQuestions(res);
-				} else if (mode === "themes" && themeIds && count) {
-					const res = await RandomService.getRandomGlobal(count, themeIds);
-					setQuestions(res);
-				} else if (mode === "all" && count) {
-					const res = await RandomService.getRandomGlobal(count);
-					setQuestions(res);
-				} else {
-					throw new Error("Некорректные параметры запуска теста.");
-				}
-			} catch (e) {
-				console.error(e);
-				setError("Ошибка при загрузке теста.");
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchData();
 	}, [mode, moduleId, themeId, themeIds, count]);
 
@@ -148,6 +129,56 @@ function TestPage() {
 			setCurrentIndex(carouselApi.selectedScrollSnap());
 		});
 	}, [carouselApi]);
+
+	const fetchData = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			if (mode === "module" && moduleId) {
+				const res = await ModuleService.getOneWithQuestionsAndAnswers(moduleId);
+				setQuestions(res.questions);
+				setTestInfo({ module: res.module });
+			} else if (mode === "theme" && themeId && count) {
+				const res = await RandomService.getRandomByTheme(themeId, count);
+				setQuestions(res.questions);
+				setTestInfo({ topic: res.topic });
+			} else if (mode === "themes" && themeIds && count) {
+				const res = await RandomService.getRandomGlobal(count, themeIds);
+				setQuestions(res.questions);
+				setTestInfo({ topics: res.topics });
+			} else if (mode === "all" && count) {
+				const res = await RandomService.getRandomGlobal(count);
+				setQuestions(res.questions);
+				setTestInfo({ topics: res.topics });
+			}
+		} catch (e) {
+			console.error(e);
+			setError("Ошибка при загрузке теста.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Асинхронная функция перезапуска теста
+	const handleRestart = async () => {
+		try {
+			// Сбрасываем состояния перед загрузкой новых вопросов
+			setUserAnswers({});
+			setConfirmedAnswers(new Set());
+			setStartTime(Date.now());
+			setCurrentIndex(0);
+			setIsResultDialogOpen(false);
+
+			// Загружаем новые вопросы
+			await fetchData();
+
+			// Возвращаем карусель на первый вопрос
+			carouselApi?.scrollTo(0);
+		} catch (error) {
+			console.error("Ошибка при перезапуске теста:", error);
+		}
+	};
 
 	const handleHideResults = () => {
 		setIsResultDialogOpen(false);
@@ -259,20 +290,57 @@ function TestPage() {
 
 			return updated;
 		});
+
+		// Если включен автоматический переход
+		if (autoNext && carouselApi) {
+			const currentIndex = carouselApi.selectedScrollSnap();
+			const total = questions.length;
+
+			// Ищем следующий неподтверждённый по кругу
+			let nextIndex = (currentIndex + 1) % total;
+			let attempts = 0;
+
+			while (attempts < total && confirmedAnswers.has(questions[nextIndex].id)) {
+				nextIndex = (nextIndex + 1) % total;
+				attempts++;
+			}
+
+			// Если нашли неподтверждённый
+			if (!confirmedAnswers.has(questions[nextIndex].id)) {
+				setTimeout(() => {
+					carouselApi.scrollTo(nextIndex);
+				}, 500); // задержка 0.5 секунды
+			}
+		}
 	}
 
 	return (
 		<div className="max-w-4xl mx-auto px-4 py-8">
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-bold">
-					Тест{" "}
-					{mode === "module"
-						? `по модулю ${moduleId}`
-						: mode === "theme"
-							? `по теме ${themeId}`
-							: mode === "themes"
-								? "по выбранным темам"
-								: "по всем темам"}
+				<h1 className="text-2xl font-bold flex items-center gap-2">
+					Тест :{" "}
+					{mode === "module" && testInfo?.module ? (
+						<Badge className="text-base">{testInfo.module.title}</Badge>
+					) : mode === "theme" && testInfo?.topic ? (
+						<Badge className="text-base">{testInfo.topic.title}</Badge>
+					) : mode === "themes" && testInfo?.topics ? (
+						<Popover>
+							<PopoverTrigger asChild>
+								<Badge className="cursor-pointer text-base">Темы ({testInfo.topics.length})</Badge>
+							</PopoverTrigger>
+							<PopoverContent className="w-64">
+								<div className="flex flex-col gap-2">
+									{testInfo.topics.map(t => (
+										<Badge key={t.id} variant="secondary" className="text-left">
+											{t.title}
+										</Badge>
+									))}
+								</div>
+							</PopoverContent>
+						</Popover>
+					) : mode === "all" ? (
+						<Badge className="text-base">По всем темам</Badge>
+					) : null}
 				</h1>
 				<Button variant="outline" onClick={() => setShowExitDialog(true)}>
 					Выйти из теста
@@ -492,57 +560,17 @@ function TestPage() {
 						<DialogDescription>Вы ответили на все вопросы. Вот ваши результаты:</DialogDescription>
 					</DialogHeader>
 
-					<div className="space-y-4 mt-4">
-						<div className="flex justify-between items-center">
-							<span className="font-medium">Правильных:</span>
-							<AnimatedBadge
-								value={results.correct}
-								className={"bg-green-400 text-white"}
-								style={badgeWidthStyle}
-							/>
-						</div>
-						<div className="flex justify-between items-center">
-							<span className="font-medium">Частично правильных:</span>
-							<AnimatedBadge
-								value={results.partial}
-								className={"bg-yellow-400 text-white"}
-								style={badgeWidthStyle}
-							/>
-						</div>
-						<div className="flex justify-between items-center">
-							<span className="font-medium">Неправильных:</span>
-							<AnimatedBadge
-								value={results.incorrect}
-								className={"bg-red-500 text-white"}
-								style={badgeWidthStyle}
-							/>
-						</div>
-
-						<Separator />
-
-						<DialogDescription className="flex items-center gap-2">
-							<Timer className="w-5 h-5 text-gray-600" />:
-							<AnimatedTimerBadge elapsedTime={elapsedTime} />
-						</DialogDescription>
-					</div>
+					<ResultStats
+						results={results}
+						elapsedTime={elapsedTime}
+						badgeWidthStyle={badgeWidthStyle}
+					/>
 
 					<DialogFooter className="flex justify-between mt-6">
 						<Button variant="secondary" onClick={handleHideResults}>
 							Скрыть
 						</Button>
-						<Button
-							variant="outline"
-							onClick={() => {
-								// перезапуск
-								setUserAnswers({});
-								setConfirmedAnswers(new Set());
-								setStartTime(Date.now());
-								setIsResultDialogOpen(false);
-								setCurrentIndex(0);
-								// Вернуть карусель на первый вопрос
-								carouselApi?.scrollTo(0);
-							}}
-						>
+						<Button variant="outline" onClick={handleRestart}>
 							Перезапустить
 						</Button>
 						<Button variant="destructive" onClick={() => navigate("/")}>

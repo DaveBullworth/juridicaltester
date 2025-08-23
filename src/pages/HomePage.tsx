@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -35,6 +36,10 @@ export default function HomePage() {
 	const [confirmAction, setConfirmAction] = useState<"all" | "selected" | null>(null);
 	const [questionCount, setQuestionCount] = useState<number>(1);
 	const [inputValue, setInputValue] = useState<string>("1");
+	const [autoNext, setAutoNext] = useState(() => {
+		const saved = localStorage.getItem("autoNext");
+		return saved === "true"; // если ничего нет, будет false
+	});
 
 	const maxQuestions =
 		confirmAction === "all"
@@ -161,12 +166,26 @@ export default function HomePage() {
 	};
 
 	return (
-		<div className="p-6 max-w-4xl mx-auto space-y-6">
-			<h1 className="text-3xl font-semibold">Выбор темы</h1>
+		<div className="p-2 sm:p-6 max-w-4xl mx-auto space-y-4 sm:space-y-6">
+			<div className="flex items-center space-x-3 justify-self-center sm:justify-self-start">
+				<Label htmlFor="auto-next" className="text-sm sm:text-base">
+					Автоматический переход на следующий вопрос
+				</Label>
+				<Switch
+					id="auto-next"
+					checked={autoNext}
+					onCheckedChange={value => {
+						setAutoNext(value);
+						localStorage.setItem("autoNext", String(value));
+					}}
+				/>
+			</div>
 
-			<div className="flex gap-4">
+			<h1 className="text-xl sm:text-3xl font-semibold text-center sm:text-left">Выбор темы</h1>
+
+			<div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
 				<Button
-					className="cursor-pointer"
+					className="cursor-pointer sm:w-max w-full"
 					onClick={() => {
 						setConfirmAction("all");
 						setIsConfirmModalOpen(true);
@@ -179,7 +198,7 @@ export default function HomePage() {
 						<TooltipTrigger asChild>
 							<div>
 								<Button
-									className="cursor-pointer"
+									className="cursor-pointer sm:w-max w-full"
 									variant="outline"
 									disabled={selectedTopics.length === 0}
 									onClick={() => {
