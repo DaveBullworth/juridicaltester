@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { Loader2, CheckCircle, ArrowBigUpDash } from "lucide-react";
+import { Loader2, CheckCircle, ArrowBigUpDash, Timer } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -67,6 +67,7 @@ function TestPage() {
 	const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
 	const [startTime, setStartTime] = useState(() => Date.now());
 	const [elapsedTime, setElapsedTime] = useState(0);
+	const [showTime, setShowTime] = useState(0);
 	const [autoNext] = useState(() => {
 		const saved = localStorage.getItem("autoNext");
 		return saved === "true"; // если ничего нет, будет false
@@ -130,6 +131,56 @@ function TestPage() {
 		});
 	}, [carouselApi]);
 
+	// Показываем тост, когда модалка закрывается
+	useEffect(() => {
+		if (!isResultDialogOpen && elapsedTime) {
+			handleHideResults();
+		}
+	}, [isResultDialogOpen]);
+
+	// Показываем тост, когда модалка закрывается
+	useEffect(() => {
+		if (!showExitDialog && elapsedTime) {
+			handleHideResults();
+		}
+	}, [showExitDialog]);
+
+	// Закрываем тост при выходе из компонента или навигации на другую страницу
+	useEffect(() => {
+		return () => {
+			// Если тост открыт — закрываем его
+			if (toastIdRef.current) {
+				toast.dismiss(toastIdRef.current);
+				toastIdRef.current = null;
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		let id: number | undefined;
+
+		if (elapsedTime === 0) {
+			// Тест ещё идёт — тикаем каждую секунду
+			const tick = () => setShowTime(Date.now() - startTime);
+			tick(); // сразу обновим, чтобы не ждать 1с
+			id = window.setInterval(tick, 1000);
+		} else {
+			// Тест завершён — фиксируем итог и ничего не тикаем
+			setShowTime(elapsedTime);
+		}
+
+		return () => {
+			if (id !== undefined) clearInterval(id);
+		};
+	}, [startTime, elapsedTime]);
+
+	const formatTime = (ms: number) => {
+		const totalSeconds = Math.floor(ms / 1000);
+		const minutes = Math.floor(totalSeconds / 60);
+		const seconds = totalSeconds % 60;
+		return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+	};
+
 	const fetchData = async () => {
 		try {
 			setLoading(true);
@@ -167,6 +218,7 @@ function TestPage() {
 			setUserAnswers({});
 			setConfirmedAnswers(new Set());
 			setStartTime(Date.now());
+			setElapsedTime(0);
 			setCurrentIndex(0);
 			setIsResultDialogOpen(false);
 
@@ -181,8 +233,6 @@ function TestPage() {
 	};
 
 	const handleHideResults = () => {
-		setIsResultDialogOpen(false);
-
 		toastIdRef.current = toast.custom(
 			t => (
 				<motion.div
@@ -315,8 +365,8 @@ function TestPage() {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8">
-			<div className="flex justify-between items-center mb-6">
+		<div className="max-w-4xl mx-auto px-4 py-4 sm:py-8">
+			<div className="flex flex-col sm:flex-row sm:justify-between items-normal sm:items-center gap-4 sm:gap-0 mb-6">
 				<h1 className="text-2xl font-bold flex items-center gap-2">
 					Тест :{" "}
 					{mode === "module" && testInfo?.module ? (
@@ -328,7 +378,7 @@ function TestPage() {
 							<PopoverTrigger asChild>
 								<Badge className="cursor-pointer text-base">Темы ({testInfo.topics.length})</Badge>
 							</PopoverTrigger>
-							<PopoverContent className="w-64">
+							<PopoverContent className="w-64 p-2 sm:p-6">
 								<div className="flex flex-col gap-2">
 									{testInfo.topics.map(t => (
 										<Badge key={t.id} variant="secondary" className="text-left">
@@ -342,7 +392,27 @@ function TestPage() {
 						<Badge className="text-base">По всем темам</Badge>
 					) : null}
 				</h1>
-				<Button variant="outline" onClick={() => setShowExitDialog(true)}>
+				{/* 🔹 Таймер */}
+				<div className="flex flex-row items-center gap-2">
+					<Timer className="w-6 h-6" />
+					<Badge
+						variant="secondary"
+						className="flex justify-start items-center gap-1 text-base pl-4 py-1 min-w-20"
+					>
+						{formatTime(showTime)}
+					</Badge>
+				</div>
+				<Button
+					variant="outline"
+					onClick={() => {
+						// Если тост открыт — закрываем его
+						if (toastIdRef.current) {
+							toast.dismiss(toastIdRef.current);
+							toastIdRef.current = null;
+						}
+						setShowExitDialog(true);
+					}}
+				>
 					Выйти из теста
 				</Button>
 			</div>
@@ -530,7 +600,7 @@ function TestPage() {
 			)}
 			{/* Диалог подтверждения выхода */}
 			<Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-				<DialogContent>
+				<DialogContent className="p-2 pt-4 sm:p-6">
 					<DialogHeader>
 						<DialogTitle>Выйти из теста?</DialogTitle>
 					</DialogHeader>
@@ -554,7 +624,7 @@ function TestPage() {
 
 			{/* Диалог окончания теста */}
 			<Dialog open={isResultDialogOpen} onOpenChange={setIsResultDialogOpen}>
-				<DialogContent className="max-w-md">
+				<DialogContent className="max-w-md p-2 pt-4 sm:p-6">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-bold">Тест завершён</DialogTitle>
 						<DialogDescription>Вы ответили на все вопросы. Вот ваши результаты:</DialogDescription>
@@ -567,7 +637,7 @@ function TestPage() {
 					/>
 
 					<DialogFooter className="flex justify-between mt-6">
-						<Button variant="secondary" onClick={handleHideResults}>
+						<Button variant="secondary" onClick={() => setIsResultDialogOpen(false)}>
 							Скрыть
 						</Button>
 						<Button variant="outline" onClick={handleRestart}>

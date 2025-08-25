@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, ChevronDown, Play } from "lucide-react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
@@ -43,6 +43,15 @@ export function TopicPanel({
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [confirmModule, setConfirmModule] = useState<Module | null>(null);
 	const [questionCount, setQuestionCount] = useState<number>(topic.questionCount ?? 1);
+	const [inputValue, setInputValue] = useState<string>("1");
+
+	// Сбрасываем состояния, когда модалка закрывается
+	useEffect(() => {
+		if (!isConfirmModalOpen) {
+			setQuestionCount(1);
+			setInputValue("1");
+		}
+	}, [isConfirmModalOpen]);
 
 	const handleStartTest = () => {
 		const state = confirmModule
@@ -54,6 +63,40 @@ export function TopicPanel({
 		// Закрываем модалку и сбрасываем модуль
 		setIsConfirmModalOpen(false);
 		setConfirmModule(null);
+	};
+
+	// при вводе руками
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const raw = e.target.value;
+		setInputValue(raw);
+
+		// если пусто — пока просто не трогаем questionCount
+		if (raw === "") return;
+
+		const num = Number(raw);
+
+		if (!isNaN(num)) {
+			// clamp в пределах [1, topic.questionCount]
+			const clamped = Math.min(Math.max(num, 1), topic.questionCount ?? 1);
+			setQuestionCount(clamped);
+		}
+	};
+
+	// при уходе фокуса из инпута — "доводим" пустое значение до валидного
+	const handleInputBlur = () => {
+		if (inputValue === "") {
+			setInputValue("1");
+			setQuestionCount(1);
+		} else {
+			setInputValue(String(questionCount));
+		}
+	};
+
+	// при изменении слайдера
+	const handleSliderChange = (values: number[]) => {
+		const val = values[0];
+		setQuestionCount(val);
+		setInputValue(String(val));
 	};
 
 	return (
@@ -226,8 +269,9 @@ export function TopicPanel({
 									className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
 									min={1}
 									max={topic.questionCount}
-									value={questionCount}
-									onChange={e => setQuestionCount(Number(e.target.value))}
+									value={inputValue}
+									onChange={handleInputChange}
+									onBlur={handleInputBlur}
 								/>
 
 								{/* Ползунок (Slider из ShadCN) */}
@@ -237,7 +281,7 @@ export function TopicPanel({
 										min={1}
 										max={topic.questionCount}
 										step={1}
-										onValueChange={(values: number[]) => setQuestionCount(values[0])}
+										onValueChange={handleSliderChange}
 									/>
 								</div>
 							</div>

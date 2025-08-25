@@ -79,6 +79,14 @@ export default function HomePage() {
 		}
 	}, [isConfirmModalOpen, confirmAction, topics, selectedTopics]);
 
+	// Сбрасываем состояния, когда модалка закрывается
+	useEffect(() => {
+		if (!isConfirmModalOpen) {
+			setQuestionCount(1);
+			setInputValue("1");
+		}
+	}, [isConfirmModalOpen]);
+
 	const toggleTopicSelection = (id: number) => {
 		setSelectedTopics(prev => (prev.includes(id) ? prev.filter(tid => tid !== id) : [...prev, id]));
 	};
