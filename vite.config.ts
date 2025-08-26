@@ -33,7 +33,7 @@ export default defineConfig({
 				]
 			},
 			workbox: {
-				globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+				globPatterns: ["**/*.{js,css,html,ico,png,svg, wasm}"],
 				runtimeCaching: [
 					{
 						urlPattern: /^https:\/\/sql\.js\.org\/dist\/.*/i,
