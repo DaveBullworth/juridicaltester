@@ -42,6 +42,14 @@ export default defineConfig({
 							cacheName: "sql-js-cache",
 							expiration: { maxEntries: 1 }
 						}
+					},
+					{
+						urlPattern: /\/juridicaltester\/sql-wasm\.wasm$/,
+						handler: "CacheFirst",
+						options: {
+							cacheName: "sql-wasm-cache",
+							expiration: { maxEntries: 1 }
+						}
 					}
 				]
 			},

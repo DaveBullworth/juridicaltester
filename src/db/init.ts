@@ -21,7 +21,7 @@ export async function initDb(): Promise<ReturnType<typeof drizzle>> {
 	// 1. Загружаем sql.js (асинхронно). locateFile сообщает, откуда брать wasm-файл для SQLite.
 	// В продакшене браузер подгрузит файл https://sql.js.org/dist/sql-wasm.wasm
 	const SQL = await initSqlJs({
-		locateFile: file => `/juridicaltester/${file}`
+		locateFile: () => `/juridicaltester/sql-wasm.wasm`
 	});
 
 	// 2. Пробуем загрузить уже сохранённую базу данных из IndexedDB браузера
