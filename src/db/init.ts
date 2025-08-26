@@ -10,10 +10,12 @@ import { drizzle } from "drizzle-orm/sql-js";
 import * as schema from "./schema";
 
 // Импортируем функции для работы с IndexedDB — для сохранения и загрузки БД
-import { loadDbFromIndexedDB, saveDbToIndexedDB } from "./idb-utils";
+import { loadDbFromIndexedDB, loadDbVersion, saveDbToIndexedDB } from "./idb-utils";
 
 // Импортируем функцию, которая инициализирует структуру БД и заполняет её данными (сидирование)
 import { seedDatabase } from "./seed";
+
+export const CURRENT_DB_VERSION = 48; // увеличиваем при каждом обновлении сидов
 
 // Главная функция инициализации базы данных.
 // Она возвращает ORM-клиент Drizzle, с которым ты потом будешь работать.
@@ -25,22 +27,33 @@ export async function initDb(): Promise<ReturnType<typeof drizzle>> {
 	});
 
 	// 2. Пробуем загрузить уже сохранённую базу данных из IndexedDB браузера
+	//    Эта функция возвращает Uint8Array с бинарным дампом базы или null, если базы ещё нет
 	let dbData = await loadDbFromIndexedDB();
 
+	// Загружаем версию базы, которая была сохранена ранее в IndexedDB
+	// Если базы ещё нет, вернётся null
+	const storedVersion = await loadDbVersion();
+
+	// Объявляем переменную для SQLite базы
 	let db: Database;
 
-	// 3. Если база уже сохранена — создаём SQLite из бинарного дампа
-	if (dbData) {
-		db = new SQL.Database(dbData); // восстанавливаем состояние БД
-	} else {
-		// 4. Если БД нет — создаём новую пустую SQLite в оперативной памяти
+	// 3. Если база нет (dbData === null) или версия базы устарела
+	//    (storedVersion !== CURRENT_DB_VERSION) — нужно пересидировать данные
+	if (!dbData || storedVersion !== CURRENT_DB_VERSION) {
+		// 3a. Создаём новую пустую SQLite базу в оперативной памяти браузера
 		db = new SQL.Database();
 
-		// 5. Наполняем её начальными данными из JSON-файлов (seed)
+		// 3b. Наполняем базу начальными данными (темы, модули, вопросы, ответы)
+		//      из JSON-файлов с сидированием
 		await seedDatabase(db);
 
-		// 6. Сохраняем проинициализированную БД в IndexedDB, чтобы в следующий раз не сидировать
-		await saveDbToIndexedDB(db);
+		// 3c. Сохраняем свежую базу в IndexedDB вместе с актуальной версией
+		//      Это гарантирует, что при следующем заходе браузер возьмёт уже новую версию
+		await saveDbToIndexedDB(db, CURRENT_DB_VERSION);
+	} else {
+		// 3d. Если база есть и версия актуальна — восстанавливаем её из бинарного дампа
+		//      Это экономит время и трафик, не нужно пересидировать данные
+		db = new SQL.Database(dbData);
 	}
 
 	// 7. Создаём клиент Drizzle ORM, указывая БД и схему — и возвращаем его
