@@ -2,7 +2,8 @@
 	"topics": [
 		{ "id": 1, "title": "Гражданское право", "order": 1 },
 		{ "id": 2, "title": "Нотариат", "order": 2 },
-		{ "id": 3, "title": "Жилищное право", "order": 3 }
+		{ "id": 3, "title": "Жилищное право", "order": 3 },
+		{ "id": 4, "title": "Земельное право", "order": 4 }
 	],
 	"modules": [
 		{ "id": 1, "title": "1-12", "order": 1, "topicId": 1 },
@@ -42,6 +43,11 @@
 		{ "id": 35, "title": "71-80", "order": 8, "topicId": 3 },
 		{ "id": 36, "title": "81-90", "order": 9, "topicId": 3 },
 		{ "id": 37, "title": "91-100", "order": 10, "topicId": 3 },
-		{ "id": 38, "title": "101-110", "order": 11, "topicId": 3 }
+		{ "id": 38, "title": "101-110", "order": 11, "topicId": 3 },
+		{ "id": 39, "title": "1-20", "order": 1, "topicId": 4 },
+		{ "id": 40, "title": "11-20", "order": 2, "topicId": 4 },
+		{ "id": 41, "title": "21-30", "order": 3, "topicId": 4 },
+		{ "id": 42, "title": "31-40", "order": 4, "topicId": 4 },
+		{ "id": 43, "title": "41-50", "order": 5, "topicId": 4 }
 	]
 }

@@ -46,7 +46,7 @@ export async function seedDatabase(db: Database) {
 	await orm.insert(schema.modules).values(base.default.modules);
 
 	// 2. импорт частями — вопросы и ответы
-	for (let part = 11; part <= 48; part++) {
+	for (let part = 11; part <= 53; part++) {
 		const data = await import(`../seed/${part}.json`);
 		await orm.insert(schema.questions).values(data.default.questions);
 		await orm.insert(schema.answers).values(data.default.answers);
