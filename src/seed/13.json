@@ -202,10 +202,10 @@
 			"id": 110,
 			"text": "да, но только путем образования коммерческих организаций",
 			"order": 2,
-			"isCorrect": true,
+			"isCorrect": false,
 			"questionId": 27
 		},
-		{ "id": 111, "text": "да", "order": 3, "isCorrect": false, "questionId": 27 },
+		{ "id": 111, "text": "да", "order": 3, "isCorrect": true, "questionId": 27 },
 
 		{
 			"id": 112,

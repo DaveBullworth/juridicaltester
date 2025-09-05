@@ -267,7 +267,7 @@
 			"id": 427,
 			"text": "данное обещание является ничтожным",
 			"order": 1,
-			"isCorrect": false,
+			"isCorrect": true,
 			"questionId": 119
 		},
 		{

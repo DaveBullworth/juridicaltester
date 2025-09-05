@@ -15,7 +15,7 @@ import { loadDbFromIndexedDB, loadDbVersion, saveDbToIndexedDB } from "./idb-uti
 // Импортируем функцию, которая инициализирует структуру БД и заполняет её данными (сидирование)
 import { seedDatabase } from "./seed";
 
-export const CURRENT_DB_VERSION = 53; // увеличиваем при каждом обновлении сидов
+export const CURRENT_DB_VERSION = 530; // увеличиваем при каждом обновлении сидов
 
 // Главная функция инициализации базы данных.
 // Она возвращает ORM-клиент Drizzle, с которым ты потом будешь работать.
