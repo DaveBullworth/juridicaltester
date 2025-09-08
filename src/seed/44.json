@@ -75,9 +75,9 @@
 		{ "id": 1304, "questionId": 372, "text": "10 лет", "isCorrect": false, "order": 2 },
 		{ "id": 1305, "questionId": 372, "text": "5 лет", "isCorrect": true, "order": 3 },
 
-		{ "id": 1306, "questionId": 373, "text": "от 15 до 20 кв.м", "isCorrect": false, "order": 1 },
-		{ "id": 1307, "questionId": 373, "text": "до 15 кв.м", "isCorrect": true, "order": 2 },
-		{ "id": 1308, "questionId": 373, "text": "от 10 до 15 кв.м", "isCorrect": true, "order": 3 },
+		{ "id": 1306, "questionId": 373, "text": "от 15 до 20 кв.м", "isCorrect": true, "order": 1 },
+		{ "id": 1307, "questionId": 373, "text": "до 15 кв.м", "isCorrect": false, "order": 2 },
+		{ "id": 1308, "questionId": 373, "text": "от 10 до 15 кв.м", "isCorrect": false, "order": 3 },
 
 		{
 			"id": 1309,
@@ -233,8 +233,8 @@
 			"order": 5
 		},
 
-		{ "id": 1332, "questionId": 379, "text": "нет", "isCorrect": false, "order": 1 },
-		{ "id": 1333, "questionId": 379, "text": "да", "isCorrect": true, "order": 2 },
+		{ "id": 1332, "questionId": 379, "text": "нет", "isCorrect": true, "order": 1 },
+		{ "id": 1333, "questionId": 379, "text": "да", "isCorrect": false, "order": 2 },
 
 		{
 			"id": 1334,
