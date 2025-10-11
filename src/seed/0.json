@@ -5,7 +5,8 @@
 		{ "id": 3, "title": "Жилищное право", "order": 3 },
 		{ "id": 4, "title": "Земельное право", "order": 4 },
 		{ "id": 5, "title": "Административное и уголовное право", "order": 5 },
-		{ "id": 6, "title": "Налоговое право", "order": 6 }
+		{ "id": 6, "title": "Налоговое право", "order": 6 },
+		{ "id": 7, "title": "Государственная регистрация", "order": 7 }
 	],
 	"modules": [
 		{ "id": 1, "title": "1-12", "order": 1, "topicId": 1 },
@@ -55,6 +56,7 @@
 		{ "id": 45, "title": "11-20", "order": 2, "topicId": 5 },
 		{ "id": 46, "title": "21-30", "order": 3, "topicId": 5 },
 		{ "id": 47, "title": "1-10", "order": 1, "topicId": 6 },
-		{ "id": 48, "title": "11-20", "order": 2, "topicId": 6 }
+		{ "id": 48, "title": "11-20", "order": 2, "topicId": 6 },
+		{ "id": 49, "title": "1-50", "order": 1, "topicId": 7 }
 	]
 }
